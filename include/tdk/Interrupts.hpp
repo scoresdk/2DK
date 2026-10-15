@@ -15,6 +15,10 @@ namespace TDK
         static Result Enable();
         static Result Disable();
         static Result Wait();
+        static Result Mask(uint32_t interruptNumber);
+        static Result Unmask(uint32_t interruptNumber);
+        static Result MaskAll();
+        static Result UnmaskAll();
         static bool Dispatch(uint32_t interruptNumber);
     };
 }

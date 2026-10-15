@@ -14,6 +14,40 @@ namespace TDK
         };
 
         InterruptEntry interruptTable[Interrupts::Count] = {};
+
+        constexpr Address MaskLow = 0x880a0020u;
+        constexpr Address MaskHigh = 0x880a0024u;
+        constexpr uint32_t FirstSource = 24u;
+        constexpr Word MaskLowAll = 0xffffffffu;
+        constexpr Word MaskHighAll = 0xffu;
+
+        Word maskLow = 0u;
+        Word maskHigh = 0u;
+
+        Result WriteMasks()
+        {
+            if (WriteRegister(MaskLow, maskLow) != Result::Success ||
+                WriteRegister(MaskHigh, maskHigh) != Result::Success)
+            {
+                return Result::HardwareError;
+            }
+            return Result::Success;
+        }
+
+        Result SetMasked(uint32_t interruptNumber, bool masked)
+        {
+            if (interruptNumber < FirstSource || interruptNumber >= Interrupts::Count)
+            {
+                return Result::InvalidArgument;
+            }
+
+            Word* shadow = interruptNumber >= 32u ? &maskLow : &maskHigh;
+            const Word bit = interruptNumber >= 32u ? 1u << (63u - interruptNumber)
+                                                    : 1u << (31u - interruptNumber);
+
+            *shadow = masked ? (*shadow | bit) : (*shadow & ~bit);
+            return WriteMasks();
+        }
     }
 
     Result Interrupts::Install(uint32_t interruptNumber, InterruptHandler handler,
@@ -93,6 +127,30 @@ namespace TDK
         }
         return platform->waitForInterrupt(platform->context) ? Result::Success
                                                              : Result::HardwareError;
+    }
+
+    Result Interrupts::Mask(uint32_t interruptNumber)
+    {
+        return SetMasked(interruptNumber, true);
+    }
+
+    Result Interrupts::Unmask(uint32_t interruptNumber)
+    {
+        return SetMasked(interruptNumber, false);
+    }
+
+    Result Interrupts::MaskAll()
+    {
+        maskLow = MaskLowAll;
+        maskHigh = MaskHighAll;
+        return WriteMasks();
+    }
+
+    Result Interrupts::UnmaskAll()
+    {
+        maskLow = 0u;
+        maskHigh = 0u;
+        return WriteMasks();
     }
 
     bool Interrupts::Dispatch(uint32_t interruptNumber)

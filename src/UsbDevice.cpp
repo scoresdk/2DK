@@ -44,7 +44,6 @@ namespace TDK
         constexpr Address CsiGpioPull = 0x88200028u;
         constexpr Address UnknownGpio = 0x882000d0u;
         constexpr Address UsbGpioPort = 0x8820003cu;
-        constexpr Address InterruptMask = 0x880a0024u;
         constexpr Address GpioInput = 0x88200074u;
 
         constexpr Word UsbPllEnable = 4u;
@@ -56,7 +55,6 @@ namespace TDK
         constexpr Word UsbGpioSetup = 0x1010000u;
         constexpr Word DefaultEndpointTypes = 0xa10u;
         constexpr Word ConfigEnable = 0x818u;
-        constexpr Word MaskBit = 1u << (45u - 32u);
         constexpr Word VbusBit = 1u << 8;
 
         constexpr Word EventSetupReady = 0x1u;
@@ -479,7 +477,7 @@ namespace TDK
             Put(StandardFlags, 0xffu);
             Put(IntEnable, BaseEnable);
             Put(StandardEnable, StandardEnableMask);
-            Put(InterruptMask, Fetch(InterruptMask) & ~MaskBit);
+            Interrupts::Unmask(UsbDevice::InterruptNumber);
             Put(UsbConfig, ConfigEnable);
             state.attached = true;
             state.status.attached = true;
@@ -602,7 +600,7 @@ namespace TDK
                      !state.interruptMasked)
             {
                 state.interruptMasked = true;
-                Put(InterruptMask, Fetch(InterruptMask) | MaskBit);
+                Interrupts::Mask(UsbDevice::InterruptNumber);
                 PushEvent(UsbEventType::Error, 0u, 0u, 0u, 0u, 0u, 0x1d1eu);
             }
         }
