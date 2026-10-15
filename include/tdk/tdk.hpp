@@ -1,0 +1,21 @@
+#pragma once
+
+#include <tdk/Audio.hpp>
+#include <tdk/AudioStream.hpp>
+#include <tdk/BlendDma.hpp>
+#include <tdk/Checksum.hpp>
+#include <tdk/Controller.hpp>
+#include <tdk/Disc.hpp>
+#include <tdk/Display.hpp>
+#include <tdk/Gamepad.hpp>
+#include <tdk/Graphics.hpp>
+#include <tdk/Interrupts.hpp>
+#include <tdk/Layers.hpp>
+#include <tdk/Math.hpp>
+#include <tdk/Memory.hpp>
+#include <tdk/Platform.hpp>
+#include <tdk/Serial.hpp>
+#include <tdk/TDK.hpp>
+#include <tdk/Timer.hpp>
+#include <tdk/Types.hpp>
+#include <tdk/Watchdog.hpp>
